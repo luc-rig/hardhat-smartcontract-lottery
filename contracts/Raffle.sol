@@ -79,6 +79,8 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
             revert Raffle__NotOpen();
         }
         s_players.push(payable(msg.sender));
+        // set the lastTimeStamp
+        s_lastTimeStamp = block.timestamp;
         // Emit an event whenever we modity a dynamic array or mapping
         emit RaffleEnter(msg.sender);
     }

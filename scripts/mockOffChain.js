@@ -7,7 +7,7 @@ async function mockKeepers() {
     const checkData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(""))
     const { upkeepNeeded } = await raffle.callStatic.checkUpkeep(checkData)
     if (upkeepNeeded) {
-        console.log("upKeepNeede detected!")
+        console.log("upKeepNeeded detected!")
         const tx = await raffle.performUpkeep(checkData)
         const txReceipt = await tx.wait(1)
         const requestId = txReceipt.events[1].args.requestId
