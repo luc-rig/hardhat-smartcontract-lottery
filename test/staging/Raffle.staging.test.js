@@ -10,6 +10,7 @@ developmentChains.includes(network.name)
           beforeEach(async function () {
               deployer = (await getNamedAccounts()).deployer
               raffle = await ethers.getContract("Raffle", deployer)
+              console.log(`Using contract at address: ${raffle.address}`)
               //raffle  = await deployments.get("Raffle")
               raffleEntranceFee = await raffle.getEntranceFee()
               console.log("BeforeEach completed!")
@@ -37,8 +38,8 @@ developmentChains.includes(network.name)
                               assert.equal(raffleState, 0)
                               /* assert.equal(
                                   winnerEndingBalance.add(gasCost).toString(),
-                                  winnerStartingBalance.add(raffleEntranceFee).toString()
-                              ) */
+                                  winnerStartingBalance.toString()
+                              )  */
                               assert(endingTimeStamp > startingTimeStamp)
                               resolve()
                           } catch (error) {
@@ -47,10 +48,10 @@ developmentChains.includes(network.name)
                               reject()
                           }
                       })
-                      console.log("Entering raffle...")
+                      console.log("Entering raffle....")
                       const tx = await raffle.enterRaffle({ value: raffleEntranceFee })
+                      const txReceipt = await tx.wait(1)
                       console.log("Entered Raffle!!")
-                      const txReceipt = tx.wait(1)
                       const { gasUsed, effectiveGasPrice } = txReceipt
                       const gasCost = gasUsed.mul(effectiveGasPrice)
                       const winnerStartingBalance = await accounts[0].getBalance()
