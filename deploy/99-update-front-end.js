@@ -6,7 +6,7 @@ const FRONT_END_ADDRESSES_FILE = "../nextjs-smartcontract-lottery/constants/cont
 const FRONT_END_ABI_FILE = "../nextjs-smartcontract-lottery/constants/abi.json"
 
 module.exports = async function () {
-    if (process.env.UPDATE_FRONT_END) {
+    if (process.env.UPDATE_FRONT_END == "true") {
         console.log("Updating frontend...")
         await updateContractAddresses()
         await updateAbi()
