@@ -139,13 +139,38 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
                   await new Promise(async (resolve, reject) => {
                       raffle.once("WinnerPicked", async () => {
                           console.log("Event founded!")
+                          try {
+                              const recentWinner = await raffle.getRecentWinner()
+                              const raffleState = await raffle.getRaffleState()
+                              const endingTimeStamp = await raffle.getLatestTimeStamp()
+                              const numPlayers = await raffle.getNumberOfPlayers()
+                              const winnerEndingBalance = await accounts[1].getBalance()
+
+                              assert.equal(numPlayers.toString(), "0")
+                              assert.equal(raffleState.toString(), "0")
+                              assert(endingTimeStamp > startingTimeStamp)
+
+                              assert.equal(
+                                  winnerEndingBalance.toString(),
+                                  winnerStartingBalance.add(
+                                      raffleEntranceFee
+                                          .mul(additionalEntrances)
+                                          .add(raffleEntranceFee)
+                                          .toString()
+                                  )
+                              )
+                              resolve()
+                          } catch (error) {
+                              console.log(error)
+                              reject()
+                          }
                       })
 
                       console.log("Picking the winner...")
                       const { upkeepNeeded } = await raffle.callStatic.checkUpkeep([])
-                      console.log(upkeepNeeded)
                       const tx = await raffle.performUpkeep([])
                       const txReceipt = await tx.wait(1)
+                      const winnerStartingBalance = await accounts[1].getBalance()
                       await vrfCoordinatorV2Mock.fulfillRandomWords(
                           txReceipt.events[1].args.requestId,
                           raffle.address
