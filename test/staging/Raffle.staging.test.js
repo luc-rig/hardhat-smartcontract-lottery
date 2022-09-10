@@ -9,11 +9,9 @@ developmentChains.includes(network.name)
 
           beforeEach(async function () {
               deployer = (await getNamedAccounts()).deployer
+              console.log(`Wallet address is: ${deployer}`)
               raffle = await ethers.getContract("Raffle", deployer)
-              console.log(`Using contract at address: ${raffle.address}`)
-              //raffle  = await deployments.get("Raffle")
               raffleEntranceFee = await raffle.getEntranceFee()
-              console.log("BeforeEach completed!")
           })
 
           describe("fullfilRandomWords", function () {
@@ -30,17 +28,19 @@ developmentChains.includes(network.name)
                               console.log("Staring assertions...")
                               const recentWinner = await raffle.getRecentWinner()
                               const raffleState = await raffle.getRaffleState()
+                              // There is only one player
                               const winnerEndingBalance = await accounts[0].getBalance()
                               const endingTimeStamp = await raffle.getLatestTimeStamp()
 
-                              await expect(raffle.getPlayer(0)).to.be.reverted
-                              assert.equal(recentWinner.toString(), accounts[0].address)
+                              await expect(raffle.getPlayer(0)).to.be.reverted // There are not player anymore
+                              assert.equal(recentWinner.toString(), accounts[0].address) // Last winner is accounts[0]
                               assert.equal(raffleState, 0)
-                              /* assert.equal(
-                                  winnerEndingBalance.add(gasCost).toString(),
-                                  winnerStartingBalance.toString()
-                              )  */
+                              assert.equal(
+                                  winnerEndingBalance.toString(),
+                                  winnerStartingBalance.add(raffleEntranceFee).toString()
+                              )
                               assert(endingTimeStamp > startingTimeStamp)
+
                               resolve()
                           } catch (error) {
                               console.log("!!!Error found!!!")
@@ -48,14 +48,17 @@ developmentChains.includes(network.name)
                               reject()
                           }
                       })
+
                       console.log("Entering raffle....")
+                      const balance1 = await accounts[0].getBalance()
                       const tx = await raffle.enterRaffle({ value: raffleEntranceFee })
                       const txReceipt = await tx.wait(1)
                       console.log("Entered Raffle!!")
                       const { gasUsed, effectiveGasPrice } = txReceipt
                       const gasCost = gasUsed.mul(effectiveGasPrice)
+                      // Player starting balance right after entering the Raffle
                       const winnerStartingBalance = await accounts[0].getBalance()
-                      console.log("Listening for events..")
+                      console.log("Listening for events...")
                   })
               })
           })
