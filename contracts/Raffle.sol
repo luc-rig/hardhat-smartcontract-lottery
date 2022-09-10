@@ -4,6 +4,7 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
+import "hardhat/console.sol";
 
 /* Errors */
 error Raffle__NotEnoughETHEntered();
@@ -125,7 +126,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         }
 
         s_raffleState = RaffleState.CALCULATING;
-        // Request the random number. Will trigger "fulfillRandomWords" function 
+        // Request the random number. Will trigger "fulfillRandomWords" function
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
             i_gasLane, // sets the maximum gas price
             i_subscriptionId,
