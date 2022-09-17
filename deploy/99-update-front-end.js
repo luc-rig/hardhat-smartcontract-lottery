@@ -36,7 +36,7 @@ async function updateAbi() {
     fs.writeFileSync(FRONT_END_ABI_FILE, raffle.interface.format(ethers.utils.FormatTypes.json))
 }
 
-module.exports.tags = ["all", "frontend"]
+module.exports.tags = ["main", "frontend"]
 
 /* const { ethers, network } = require("hardhat")
 const fs = require("fs-extra")

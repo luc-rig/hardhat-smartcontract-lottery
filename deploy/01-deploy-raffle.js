@@ -1,12 +1,13 @@
 const { network, ethers } = require("hardhat")
 const { developmentChains, networkConfig } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
+const fs = require("fs")
 
-const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("3")
 
 module.exports = async function ({ getNamedAccounts, deployments }) {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
+
     const chainId = network.config.chainId
 
     /// ARGS ///
@@ -20,6 +21,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         - interval
     */
     let vrfCoordinatorV2Address, subscriptionId
+
     if (developmentChains.includes(network.name)) {
         const VRFCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = VRFCoordinatorV2Mock.address
@@ -27,11 +29,14 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         // It emits an event with the subscription ID
         const transactionReceipt = await transactionResponse.wait(1)
         subscriptionId = transactionReceipt.events[0].args.subId
+        // To fund mock subscription
+        const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("3")
         await VRFCoordinatorV2Mock.fundSubscription(subscriptionId, VRF_SUB_FUND_AMOUNT)
     } else {
         vrfCoordinatorV2Address = networkConfig[chainId]["vrfCoordinatorV2"]
         subscriptionId = networkConfig[chainId]["subscriptionId"]
     }
+
     const entranceFee = networkConfig[chainId]["entranceFee"]
     const gasLane = networkConfig[chainId]["gasLane"]
     const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
@@ -53,7 +58,16 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         waitConfirmations: network.config.blokcConfirmations || 1,
     })
 
+    if(!developmentChains.includes(network.name)){
+        const vrfCoordinatorInterfaceAbi = fs.readFileSync()
+        const vrfCoordinator = await ethers.getContractAt()
+        await raffle.addConsumer(
+            subscriptionId,
+            raffle.address
+        )
+    }
+
     log("---------------------------------------------------------------------")
 }
 
-module.exports.tags = ["all", "raffle"]
+module.exports.tags = ["all", "raffle", "main"]

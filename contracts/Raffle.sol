@@ -38,6 +38,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     uint32 private immutable i_callbackGasLimit;
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
+    address s_owner;
 
     /* Lottery variables */
     address private s_recentWinner;
@@ -67,6 +68,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         s_raffleState = RaffleState.OPEN;
         s_lastTimeStamp = block.timestamp;
         i_interval = interval;
+        s_owner = msg.sender;
     }
 
     /**
@@ -195,5 +197,10 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     function getInterval() public view returns (uint256) {
         return i_interval;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == s_owner);
+        _;
     }
 }
