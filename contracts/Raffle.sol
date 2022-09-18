@@ -16,6 +16,7 @@ error Raffle__UpkeepNotNeeded(
     uint256 raffleState,
     uint256 timePassed
 );
+error Raffle__SubNotCreated();
 
 /** @title A sample raffle contract
  *   @author luc-rig
@@ -32,9 +33,9 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     /* State Variables */
     uint256 private immutable i_entranceFee;
     address payable[] private s_players;
-    VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
+    VRFCoordinatorV2Interface COORDINATOR;
     bytes32 private immutable i_gasLane;
-    uint64 private immutable i_subscriptionId;
+    uint64 public s_subscriptionId;
     uint32 private immutable i_callbackGasLimit;
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
@@ -50,6 +51,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
     event RaffleEnter(address indexed player);
     event RequestedRaffleWinner(uint256 indexed requestId);
     event WinnerPicked(address indexed winner);
+    event SubscriptionCreated(uint64 indexed subscriptionId);
 
     /* Functions */
     constructor(
@@ -60,19 +62,25 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         uint32 callbackGasLimit,
         uint256 interval
     ) VRFConsumerBaseV2(vrfCoordinatorV2) {
-        i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
+        COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinatorV2);
         i_entranceFee = entranceFee;
         i_gasLane = gasLane;
-        i_subscriptionId = subscriptionId;
+        s_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
         s_raffleState = RaffleState.OPEN;
         s_lastTimeStamp = block.timestamp;
         i_interval = interval;
         s_owner = msg.sender;
+
+        createNewSubscription();
     }
 
-    function addConsuer() external onlyOwner {
-        i_vrfCoordinator.addConsumer(i_subscriptionId, address(this));
+    function createNewSubscription() private onlyOwner {
+        s_subscriptionId = COORDINATOR.createSubscription();
+
+        COORDINATOR.addConsumer(s_subscriptionId, address(this));
+        
+        emit SubscriptionCreated(s_subscriptionId);
     }
 
     /**
@@ -133,9 +141,9 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
         s_raffleState = RaffleState.CALCULATING;
         // Request the random number. Will trigger "fulfillRandomWords" function
-        uint256 requestId = i_vrfCoordinator.requestRandomWords(
+        uint256 requestId = COORDINATOR.requestRandomWords(
             i_gasLane, // sets the maximum gas price
-            i_subscriptionId,
+            s_subscriptionId,
             REQUEST_CONFIRMATIONS,
             i_callbackGasLimit, // sets maximum gas amount to use for requests
             NUM_WORDS
@@ -201,6 +209,10 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     function getInterval() public view returns (uint256) {
         return i_interval;
+    }
+
+    function getSubscriptionId() public view returns(uint64){
+        return s_subscriptionId;
     }
 
     modifier onlyOwner() {
