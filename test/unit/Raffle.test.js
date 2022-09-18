@@ -134,7 +134,7 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
                   await network.provider.send("evm_increaseTime", [interval.toNumber() + 1])
                   await network.provider.request({ method: "evm_mine", params: [] })
 
-                  const startingTimeStamp = await raffle.getLatestTimeStamp()
+                  const startingTimeStamp = await raffle.getLatestTimestamp()
 
                   await new Promise(async (resolve, reject) => {
                       raffle.once("WinnerPicked", async () => {
@@ -142,7 +142,7 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
                           try {
                               const recentWinner = await raffle.getRecentWinner()
                               const raffleState = await raffle.getRaffleState()
-                              const endingTimeStamp = await raffle.getLatestTimeStamp()
+                              const endingTimeStamp = await raffle.getLatestTimestamp()
                               const numPlayers = await raffle.getNumberOfPlayers()
                               const winnerEndingBalance = await accounts[1].getBalance()
 

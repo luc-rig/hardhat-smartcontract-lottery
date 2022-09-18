@@ -29,7 +29,7 @@ module.exports = {
         },
         goerli: {
             chainId: 5,
-            blockConfirmations: 6,
+            blockConfirmations: 2,
             url: GOERLI_RPC_URL,
             accounts: [PRIVATE_KEY],
             saveDeployments: true,
@@ -54,6 +54,6 @@ module.exports = {
         },
     },
     mocha: {
-        timeout: 500000, // 500 seconds
+        timeout: 200000,
     },
 }

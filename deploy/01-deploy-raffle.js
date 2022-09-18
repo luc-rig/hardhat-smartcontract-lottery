@@ -3,7 +3,6 @@ const { developmentChains, networkConfig } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
 const fs = require("fs")
 
-
 module.exports = async function ({ getNamedAccounts, deployments }) {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
@@ -58,15 +57,11 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         waitConfirmations: network.config.blokcConfirmations || 1,
     })
 
-    if(!developmentChains.includes(network.name)){
-        const vrfCoordinatorInterfaceAbi = fs.readFileSync()
-        const vrfCoordinator = await ethers.getContractAt()
-        await raffle.addConsumer(
-            subscriptionId,
-            raffle.address
-        )
-    }
+    /* if (!developmentChains.includes(network.name)) {
+        await raffle.addConsumer()
+    } */
 
+    log(`Raffle deployed on ${network.name} network`)
     log("---------------------------------------------------------------------")
 }
 

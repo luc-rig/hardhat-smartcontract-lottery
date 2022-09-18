@@ -38,7 +38,7 @@ developmentChains.includes(network.name)
                               assert.equal(
                                   winnerEndingBalance.toString(),
                                   winnerStartingBalance.add(raffleEntranceFee).toString()
-                              )
+                              ) 
                               assert(endingTimeStamp > startingTimeStamp)
 
                               resolve()
@@ -53,11 +53,11 @@ developmentChains.includes(network.name)
                       const balance1 = await accounts[0].getBalance()
                       const tx = await raffle.enterRaffle({ value: raffleEntranceFee })
                       const txReceipt = await tx.wait(1)
+                      const winnerStartingBalance = await accounts[0].getBalance()
                       console.log("Entered Raffle!!")
                       const { gasUsed, effectiveGasPrice } = txReceipt
                       const gasCost = gasUsed.mul(effectiveGasPrice)
-                      // Player starting balance right after entering the Raffle
-                      const winnerStartingBalance = await accounts[0].getBalance()
+                      console.log(`Winner starting balance is ${winnerStartingBalance}`)
                       console.log("Listening for events...")
                   })
               })

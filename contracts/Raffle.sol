@@ -71,6 +71,10 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
         s_owner = msg.sender;
     }
 
+    function addConsuer() external onlyOwner {
+        i_vrfCoordinator.addConsumer(i_subscriptionId, address(this));
+    }
+
     /**
      * @dev Enters raffle by depositing the amount specified in "value
      */
